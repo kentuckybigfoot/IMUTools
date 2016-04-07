@@ -3,13 +3,14 @@ clear all
 clc
 format long
 
-dataFilePath = 'C:\Users\clk0032\Dropbox\Friction Connection Research\Full Scale Test Data\Data Processing Scripts\';
-dataFileName = '[RotationData] FS Testing - ST2 - Test 2 - 04-07-16';
+dataFilePath     = 'C:\Users\clk0032\Dropbox\Friction Connection Research\Full Scale Test Data\Data Processing Scripts\';
+dataFileName     = '[RotationData] FS Testing - ST2 - Test 2 - 04-07-16';
 dataFileSavePath = '';
 dataFileSaveName = '';
-smartPlotting = true;
-savePlots = true;
-reverseStr = ''; %For progress updates
+smartPlotting    = true;
+savePlots        = true;
+saveData         = true;
+reverseStr       = ''; %For progress updates
 
 format long
 
@@ -62,38 +63,18 @@ for r = 1:1:size(sensorA, 1)
     
     %Display calculation progress
     percentComplete = 100 * r / size(sensorA,1);
-    msg = sprintf('Percent done: %3.1f', percentComplete);
+    msg = sprintf('Percent complete: %3.1f', percentComplete);
     fprintf([reverseStr, msg]);
     reverseStr = repmat(sprintf('\b'), 1, length(msg));
 end
-%{
-figure();
-start = 1;
-limit = length(alpha);
-subplot(3,1,1)
-plot(start:1:limit, alpha(start:limit,:)*(180/pi));
-ylabel('Rotation (degrees)');
-xlabel('Index');
-title('Yaw Axis Plot (Alpha) (Counter-Clockwise Z Axis Positive Orientation');
-grid on
-grid minor
-subplot(3,1,2)
-plot(start:1:limit, beta(start:limit,:)*(180/pi));
-ylabel('Rotation (degrees)');
-xlabel('Index');
-title('Pitch Axis Plot (Beta) (Counter-Clockwise Y Axis Positive Orientation');
-grid on
-grid minor
-subplot(3,1,3)
-plot(start:1:limit, gamma(start:limit,:)*(180/pi));
-ylabel('Rotation (degrees)');
-xlabel('Index');
-title('Roll Axis Plot (Gamma) (Counter-Clockwise X Axis Positive Orientation');
-grid on
-grid minor
-ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0 
-1],'Box','off','Visible','off','Units','normalized', 'clipping', 'off');
-text(0.5, 1,sprintf('\b start = %d, end = %d',start, limit),'HorizontalAlignment', 'center','VerticalAlignment', 'top')
 
+%Plot rotations for both Sensor A and Sensor B
+plotRotations(1, [anglesA(:,1) anglesA(:,2) anglesA(:,3)], dataFileName, 1, length(anglesA), '');
+plotRotations(1, [anglesB(:,1) anglesB(:,2) anglesB(:,3)], dataFileName, 1, length(anglesB), '');
+
+%More memory cleaning
+clearvars r percentComplete msg reverseStr;
+
+%Left over remnent from dead-reckoning attempts.
 %plot3(pointsFix(:,1),pointsFix(:,2),pointsFix(:,3))
-%}
+
