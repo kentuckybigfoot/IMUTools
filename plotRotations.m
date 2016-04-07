@@ -2,11 +2,15 @@ function [ ] = plotRotations( x, y, name, start, stop, RorD)
 %PLOTROTATIONS Plots rotations (yaw, pitch, roll)
 %   Detailed explanation goes here
 
+alpha = y(:,1);
+beta  = y(:,2);
+gamma = y(:,3);
+
 figure();
 
 %Yaw
 subplot(3,1,1)
-plot(start:1:stop, y(start:stop,1)*(180/pi));
+plot(start:1:stop, alpha(start:stop,1)*(180/pi));
 ylabel('Rotation (degrees)');
 xlabel('Index');
 title('Yaw Axis Plot (Alpha) (Counter-Clockwise Z Axis Positive Orientation');
@@ -15,7 +19,7 @@ grid minor
 
 %Pitch
 subplot(3,1,2)
-plot(start:1:stop, y(start:stop,2)*(180/pi));
+plot(start:1:stop, beta(start:stop,1)*(180/pi));
 ylabel('Rotation (degrees)');
 xlabel('Index');
 title('Pitch Axis Plot (Beta) (Counter-Clockwise Y Axis Positive Orientation');
@@ -24,7 +28,7 @@ grid minor
 
 %Roll
 subplot(3,1,3)
-plot(start:1:stop, y(start:stop,3)*(180/pi));
+plot(start:1:stop, gamma(start:stop,1)*(180/pi));
 ylabel('Rotation (degrees)');
 xlabel('Index');
 title('Roll Axis Plot (Gamma) (Counter-Clockwise X Axis Positive Orientation');
