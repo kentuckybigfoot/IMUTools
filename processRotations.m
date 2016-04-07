@@ -9,6 +9,7 @@ dataFileSavePath = '';
 dataFileSaveName = '';
 smartPlotting = true;
 savePlots = true;
+reverseStr = ''; %For progress updates
 
 format long
 
@@ -23,12 +24,20 @@ load(sprintf('%s%s', dataFilePath, dataFileName));
 sensorA = [Aw Ax Ay Az];
 sensorB = [Bw Bx By Bz];
 
+% Consolidate calibration data in a similar manner. Row 1 = system, row 2 =
+% gyroscope, row 3 = accel, row 4 = mag.
+calA = [CalA1 CalA2 CalA3 CalA4];
+calB = [CalB1 CalB2 CalB3 CalB4];
+
+%Free memory
+clearvars Aw Ax Ay Az Bw Bx By Bz CalA1 CalA2 CalA3 CalA4 CalB1 CalB2 CalB3 CalB4 VarName1 VarName2 VarName7 VarName12 VarName17
+
 % Check to ensure that we are dealing with normalized quat data.
 if any(sensorA > 1 ) | any(sensorB > 1)
     error('Convert to unit quaternions before processing');
 end
 
-for r = 1:1:30%size(sensorA, 1)   
+for r = 1:1:size(sensorA, 1)   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Convert Quaternion to Axis Angle
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -50,6 +59,12 @@ for r = 1:1:30%size(sensorA, 1)
     
     [anglesA(r,1) anglesA(r,2) anglesA(r,3)] = convertMtoA(RA(r,:));
     [anglesB(r,1) anglesB(r,2) anglesB(r,3)] = convertMtoA(RB(r,:));
+    
+    %Display calculation progress
+    percentComplete = 100 * r / size(sensorA,1);
+    msg = sprintf('Percent done: %3.1f', percentComplete);
+    fprintf([reverseStr, msg]);
+    reverseStr = repmat(sprintf('\b'), 1, length(msg));
 end
 %{
 figure();
@@ -81,34 +96,4 @@ ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0
 text(0.5, 1,sprintf('\b start = %d, end = %d',start, limit),'HorizontalAlignment', 'center','VerticalAlignment', 'top')
 
 %plot3(pointsFix(:,1),pointsFix(:,2),pointsFix(:,3))
-%}
-%{
-save '03-13-16-3_LocationData.mat';
-rotations
-plot3(pointsFix(:,1),pointsFix(:,2),pointsFix(:,3))
-figure
-plot3(pointsFix(:,1),pointsFix(:,2),pointsFix(:,3))
-plot(1:1:length(CalA1), CalB1)
-figure
-plot(1:1:length(CalA1), CalB1)
-plot(7000:1:length(CalA1), alpha(7000:end,:)*(180/pi), 7000:1:length(CalA1), beta(7000:end,:)*(180/pi), 7000:1:length(CalA1), gamma(7000:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-figure
-plot(7000:1:length(CalA1), alpha(7000:end,:)*(180/pi), 7000:1:length(CalA1), beta(7000:end,:)*(180/pi), 7000:1:length(CalA1), gamma(7000:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-plot(7350:1:length(CalA1), alpha(7350:end,:)*(180/pi), 7350:1:length(CalA1), beta(7350:end,:)*(180/pi), 7350:1:length(CalA1), gamma(7350:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-figure
-plot(7350:1:length(CalA1), alpha(7350:end,:)*(180/pi), 7350:1:length(CalA1), beta(7350:end,:)*(180/pi), 7350:1:length(CalA1), gamma(7350:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-grid on
-grid minor
-rotations
-figure; plot(1:1:length(CalA1), CalA1)
-plot(7350:1:length(CalA1), alpha(9750:end,:)*(180/pi), 9750:1:length(CalA1), beta(9750:end,:)*(180/pi), 9750:1:length(CalA1), gamma(9750:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-plot(9750:1:length(CalA1), alpha(9750:end,:)*(180/pi), 9750:1:length(CalA1), beta(9750:end,:)*(180/pi), 9750:1:length(CalA1), gamma(9750:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-figurel plot(9750:1:length(CalA1), alpha(9750:end,:)*(180/pi), 9750:1:length(CalA1), beta(9750:end,:)*(180/pi), 9750:1:length(CalA1), gamma(9750:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-figure; plot(9750:1:length(CalA1), alpha(9750:end,:)*(180/pi), 9750:1:length(CalA1), beta(9750:end,:)*(180/pi), 9750:1:length(CalA1), gamma(9750:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-figure; plot(9900:1:length(CalA1), alpha(9900:end,:)*(180/pi), 9900:1:length(CalA1), beta(9900:end,:)*(180/pi), 9900:1:length(CalA1), gamma(9900:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)')
-figure; plot(9900:1:length(CalA1), alpha(9900:end,:)*(180/pi), 9900:1:length(CalA1), beta(9900:end,:)*(180/pi), 9900:1:length(CalA1), gamma(9900:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)', 'Position', 'Best')
-figure; plot(9900:1:length(CalA1), alpha(9900:end,:)*(180/pi), 9900:1:length(CalA1), beta(9900:end,:)*(180/pi), 9900:1:length(CalA1), gamma(9900:end,:)*(180/pi)); legend('Yaw (CC Z)','Pitch (CC Y)','Gamma (CC X)', 'Location', 'Best')
-grid on
-grid minor
-plot3(pointsFix(9900:end,1),pointsFix(9900:end,2),pointsFix(9900:end,3))
 %}
