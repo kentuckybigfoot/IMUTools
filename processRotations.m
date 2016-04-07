@@ -41,31 +41,15 @@ for r = 1:1:30%size(sensorA, 1)
     RA(r,:) = convertQtoM(sensorA(r,:));
     RB(r,:) = convertQtoM(sensorB(r,:));
     
-    %{
-    %Roll (gamma) (CC X Axis)
-    gamma(r,1) = atan2(R32,R33);
-    %Pitch (beta) (CC Y Axis)
-    beta(r,1) = atan2(-R31,sqrt(R32^2 + R33^2));
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Convert Rotation Matrix to Yaw, Pitch, and Roll (Radians)
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Yaw (alpha) (CC Z Axis)
-    alpha(r,1) = atan2(R21, R11);
+    %Pitch (beta) (CC Y Axis)
+    %Roll (gamma) (CC X Axis)
     
-    if R11 == 0 && R33 == 0
-        disp('Well Shit');
-    end
-    
-    points = [R11 R12 R13; R21 R22 R23; R31 R32 R33]*[1; 1; 1];
-    pointsFix(r,:) = [points(1) points(2) points(3)];
-    
-    points2 = [R11 R12 R13; R21 R22 R23; R31 R32 R33]*points;
-    pointsRel(r,:) = [points2(1) points2(2) points2(3)];
-    
-    R(r,:) = [R11 R12 R13 R21 R22 R23 R31 R32 R33];
-    R2(r,:) = [(1 - 2*qw^2 - 2*qz^2) (2*qx*qy - 2*qz*qw) (2*qx*qz + 2*qy*qw) (2*qx*qy + 2*qz*qw) (1 - 2*qx^2 - 2*qz^2) (2*qy*qz - 2*qx*qw) (2*qx*qz - 2*qy*qw) (2*qy*qz + 2*qx*qw) (1 - 2*qx^2 - 2*qy^2)];
-    
-    if r == 1 || r == 9999 || r == 19999 || r == 29999 || r == 39999 || r == 49999
-        r
-    end
-    %}
+    [anglesA(r,1) anglesA(r,2) anglesA(r,3)] = convertMtoA(RA(r,:));
+    [anglesB(r,1) anglesB(r,2) anglesB(r,3)] = convertMtoA(RB(r,:));
 end
 %{
 figure();
