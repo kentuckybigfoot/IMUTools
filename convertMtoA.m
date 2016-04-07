@@ -1,7 +1,8 @@
 function [ alpha beta gamma ] = convertMto( R )
 %CONVERTMTOA Convert 3D rotation matrix to rotation angles
-%   Input full horizontal rotation matrix, R, and return alpha (yaw CC pos
-%   x axis), beta (pitch CC pos y axis), abd gamma (roll CC pos x axis).
+%   Input full horizontal rotation matrix, R, and returns alpha (yaw CC pos
+%   x axis), beta (pitch CC pos y axis), abd gamma (roll CC pos x axis) all
+%   in radians.
 %   
 %   http://planning.cs.uiuc.edu/node103.html used as reference.
 
