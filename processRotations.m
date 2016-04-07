@@ -16,9 +16,6 @@ format long
 
 load(sprintf('%s%s', dataFilePath, dataFileName));
 
-%unitquat = sqrt(Aw.^2 + Ax.^2 + Ay.^2 + Az.^2);
-%unitquat2 = sqrt(Bw.^2 + Bx.^2 + By.^2 + Bz.^2);
-
 % Consolidate data from Sensor A into variable sensorA and consolidate
 % data from Sensor B into variable sensorB. Row 1 = w, row 2 = x,
 % row 3 = y, row 4 = z.
@@ -30,8 +27,11 @@ sensorB = [Bw Bx By Bz];
 calA = [CalA1 CalA2 CalA3 CalA4];
 calB = [CalB1 CalB2 CalB3 CalB4];
 
+%Offset time to zero seconds
+offsetTime(:,1) = (time(:)-time(1))/1000;
+
 %Free memory
-clearvars Aw Ax Ay Az Bw Bx By Bz CalA1 CalA2 CalA3 CalA4 CalB1 CalB2 CalB3 CalB4 VarName1 VarName2 VarName7 VarName12 VarName17
+clearvars Aw Ax Ay Az Bw Bx By Bz CalA1 CalA2 CalA3 CalA4 CalB1 CalB2 CalB3 CalB4 VarName2 VarName7 VarName12 VarName17
 
 % Check to ensure that we are dealing with normalized quat data.
 if any(sensorA > 1 ) | any(sensorB > 1)
