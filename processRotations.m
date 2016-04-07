@@ -28,44 +28,19 @@ if any(sensorA > 1 ) | any(sensorB > 1)
     error('Convert to unit quaternions before processing');
 end
 
-for r = 1:1:size(sensorA, 1)   
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+for r = 1:1:30%size(sensorA, 1)   
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Convert Quaternion to Axis Angle
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
-    % Used as reference
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    [AAA(r,1) AAA(r,2) AAA(r,3) AAA(r,4)] = convertQtoAA(sensorA(r,:));
+    [AAB(r,1) AAB(r,2) AAB(r,3) AAB(r,4)] = convertQtoAA(sensorB(r,:));
     
-    %Get angle
-    angle(r,1) = 2*acos(sensorA(r,1)); %sensorA
-    angle(r,2) = 2*acos(sensorB(r,1)); %sensorB
-    
-    %Get and condition denominator
-    s1 = sqrt(1-sensorA(r,1)*sensorA(r,1));
-    s2 = sqrt(1-sensorB(r,1)*sensorB(r,1));
-    
-    if s1 < 0.001
-        s1 = 1;
-    end
-    
-    if s2 < 0.001
-        s2 = 1;
-    end
-    
-    % Save axis data for sensorA
-    x(r,1) = sensorA(r,1)/s1;
-    y(r,1) = sensorA(r,2)/s1;
-    z(r,1) = sensorA(r,3)/s1;
-    
-    % Save axis data for sensorB
-    x(r,2) = sensorB(r,1)/s2;
-    y(r,2) = sensorB(r,2)/s2;
-    z(r,2) = sensorB(r,3)/s2;
-    
-    %Get rotation matrix for sensor A
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Convert Quaternion to Rotation Matrix
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     RA(r,:) = convertQtoM(sensorA(r,:));
-    
-    %Get rotation matrix for sensor A
     RB(r,:) = convertQtoM(sensorB(r,:));
+    
     %{
     %Roll (gamma) (CC X Axis)
     gamma(r,1) = atan2(R32,R33);
