@@ -1,42 +1,72 @@
+close all
 clear all
-load '04-01-16-1_LocationData.mat';
+clc
 format long
 
-unitquat = sqrt(Bw.^2 + Bx.^2 + By.^2 + Bz.^2);
+dataFilePath = 'C:\Users\clk0032\Dropbox\Friction Connection Research\Full Scale Test Data\Data Processing Scripts\';
+dataFileName = '[RotationData] FS Testing - ST2 - Test 2 - 04-07-16';
+dataFileSavePath = '';
+dataFileSaveName = '';
+smartPlotting = true;
+savePlots = true;
+
+format long
+
+load(sprintf('%s%s', dataFilePath, dataFileName));
+
+%unitquat = sqrt(Aw.^2 + Ax.^2 + Ay.^2 + Az.^2);
 %unitquat2 = sqrt(Bw.^2 + Bx.^2 + By.^2 + Bz.^2);
 
-for r = 1:1:length(unitquat)
-    qwn(r,1) = Bw(r,1)/unitquat(r,1);
-    qxn(r,1) = Bx(r,1)/unitquat(r,1);
-    qyn(r,1) = By(r,1)/unitquat(r,1);
-    qzn(r,1) = Bz(r,1)/unitquat(r,1);
+% Consolidate data from Sensor A into variable sensorA and consolidate
+% data from Sensor B into variable sensorB. Row 1 = w, row 2 = x,
+% row 3 = y, row 4 = z.
+sensorA = [Aw Ax Ay Az];
+sensorB = [Bw Bx By Bz];
+
+% Check to ensure that we are dealing with normalized quat data.
+if any(sensorA > 1 ) | any(sensorB > 1)
+    error('Convert to unit quaternions before processing');
+end
+
+for r = 1:1:size(sensorA, 1)   
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %Convert Quaternion to Axis Angle
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToAngle/
+    % Used as reference
     
-    qw = qwn(r,1);
-    qx = qxn(r,1);
-    qy = qyn(r,1);
-    qz = qzn(r,1);
+    %Get angle
+    angle(r,1) = 2*acos(sensorA(r,1)); %sensorA
+    angle(r,2) = 2*acos(sensorB(r,1)); %sensorB
     
-    angle(r,1) = 2*acos(qw); 
-    s = sqrt(1-qw*qw);
+    %Get and condition denominator
+    s1 = sqrt(1-sensorA(r,1)*sensorA(r,1));
+    s2 = sqrt(1-sensorB(r,1)*sensorB(r,1));
     
-    if s < 0.001
-        s = 1;
+    if s1 < 0.001
+        s1 = 1;
     end
     
-    x(r,1) = qx/s;
-    y(r,1) = qy/s;
-    z(r,1) = qz/s;
+    if s2 < 0.001
+        s2 = 1;
+    end
     
-    R11 = (1 - 2*qy^2 - 2*qz^2);
-    R12 = (2*qx*qy - 2*qz*qw);
-    R13 = (2*qx*qz + 2*qy*qw);
-    R21 = (2*qx*qy + 2*qz*qw);
-    R22 = (1 - 2*qx^2 - 2*qz^2);
-    R23 = (2*qy*qz - 2*qx*qw);
-    R31 = (2*qx*qz - 2*qy*qw);
-    R32 = (2*qy*qz + 2*qx*qw);
-    R33 = (1 - 2*qx^2 - 2*qy^2);
+    % Save axis data for sensorA
+    x(r,1) = sensorA(r,1)/s1;
+    y(r,1) = sensorA(r,2)/s1;
+    z(r,1) = sensorA(r,3)/s1;
     
+    % Save axis data for sensorB
+    x(r,2) = sensorB(r,1)/s2;
+    y(r,2) = sensorB(r,2)/s2;
+    z(r,2) = sensorB(r,3)/s2;
+    
+    %Get rotation matrix for sensor A
+    RA(r,:) = convertQtoM(sensorA(r,:));
+    
+    %Get rotation matrix for sensor A
+    RB(r,:) = convertQtoM(sensorB(r,:));
+    %{
     %Roll (gamma) (CC X Axis)
     gamma(r,1) = atan2(R32,R33);
     %Pitch (beta) (CC Y Axis)
@@ -60,8 +90,9 @@ for r = 1:1:length(unitquat)
     if r == 1 || r == 9999 || r == 19999 || r == 29999 || r == 39999 || r == 49999
         r
     end
+    %}
 end
-
+%{
 figure();
 start = 1;
 limit = length(alpha);
@@ -91,7 +122,7 @@ ha = axes('Position',[0 0 1 1],'Xlim',[0 1],'Ylim',[0
 text(0.5, 1,sprintf('\b start = %d, end = %d',start, limit),'HorizontalAlignment', 'center','VerticalAlignment', 'top')
 
 %plot3(pointsFix(:,1),pointsFix(:,2),pointsFix(:,3))
-
+%}
 %{
 save '03-13-16-3_LocationData.mat';
 rotations
@@ -121,21 +152,4 @@ figure; plot(9900:1:length(CalA1), alpha(9900:end,:)*(180/pi), 9900:1:length(Cal
 grid on
 grid minor
 plot3(pointsFix(9900:end,1),pointsFix(9900:end,2),pointsFix(9900:end,3))
-%}
-%{
-function [ M ] = convertQtoM( q )
-%CONVERTQTOM Converts a quaternion (q = (w, x, y, z)) to a rotation matrix.
-%            d1 = M(1,:), d2 = M(2,:), d3 = M(3,:).
-    M = zeros(3,3);
-    q0 = q(1);
-    q1 = q(2);
-    q2 = q(3);
-    q3 = q(4);
-    M(1,1) = q1^2-q2^2-q3^2+q0^2; M(1,2) = 2*(q1*q2-q0*q3);      M(1,3) = 2*(q1*q3+q0*q2); 
-    M(2,1) = 2*(q1*q2+q0*q3);     M(2,2) = -q1^2+q2^2-q3^2+q0^2; M(2,3) = 2*(q2*q3-q0*q1); 
-    M(3,1) = 2*(q1*q3-q0*q2);     M(3,2) = 2*(q2*q3+q0*q1);      M(3,3) = -q1^2-q2^2+q3^2+q0^2;
-
-end
-
-convertQtoM([qwn(1700), qxn(1700), qyn(1700), qzn(1700)]);
 %}
