@@ -3,12 +3,14 @@ clear all
 clc
 format long
 
-dataFilePath     = 'C:\Users\clk0032\Dropbox\Friction Connection Research\Full Scale Test Data\Data Processing Scripts\';
-dataFileName     = '[RotationData] FS Testing - ST2 - Test 2 - 04-07-16';
-dataFileSavePath = '';
-dataFileSaveName = '';
+global dataFileSaveName;
+global smartPlotting;
+
+dataFilePath     = 'C:\Users\clk0032\Dropbox\Friction Connection Research\Full Scale Test Data\FS Testing -ST2 - 05-09-16\';
+dataFileName     = '[RotationData]FS Testing - ST2 - Test 2 - 05-09-16.mat';
+dataFileSavePath = 'C:\Users\clk0032\Dropbox\Friction Connection Research\Full Scale Test Data\FS Testing -ST2 - 05-09-16\';
+dataFileSaveName = '[ProcRotationData]FS Testing - ST2 - Test 2 - 05-09-16.mat';
 smartPlotting    = true;
-savePlots        = true;
 saveData         = true;
 reverseStr       = ''; %For progress updates
 
@@ -28,7 +30,7 @@ calA = [CalA1 CalA2 CalA3 CalA4];
 calB = [CalB1 CalB2 CalB3 CalB4];
 
 %Offset time to zero seconds
-offsetTime(:,1) = (time(:)-time(1))/1000;
+%offsetTime(:,1) = (time(:)-time(1))/1000;
 
 %Free memory
 clearvars Aw Ax Ay Az Bw Bx By Bz CalA1 CalA2 CalA3 CalA4 CalB1 CalB2 CalB3 CalB4 VarName2 VarName7 VarName12 VarName17
@@ -37,6 +39,8 @@ clearvars Aw Ax Ay Az Bw Bx By Bz CalA1 CalA2 CalA3 CalA4 CalB1 CalB2 CalB3 CalB
 if any(sensorA > 1 ) | any(sensorB > 1)
     error('Convert to unit quaternions before processing');
 end
+
+sizeOfA = size(sensorA,1); %For progress updates
 
 for r = 1:1:size(sensorA, 1)   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,7 +66,7 @@ for r = 1:1:size(sensorA, 1)
     [anglesB(r,1) anglesB(r,2) anglesB(r,3)] = convertMtoA(RB(r,:));
     
     %Display calculation progress
-    percentComplete = 100 * r / size(sensorA,1);
+    percentComplete = 100 * r / sizeOfA;
     msg = sprintf('Percent complete: %3.1f', percentComplete);
     fprintf([reverseStr, msg]);
     reverseStr = repmat(sprintf('\b'), 1, length(msg));
@@ -74,6 +78,10 @@ plotRotations(1, [anglesB(:,1) anglesB(:,2) anglesB(:,3)], dataFileName, 1, leng
 
 %More memory cleaning
 clearvars r percentComplete msg reverseStr;
+
+if saveData == true
+    save(fullfile(dataFileSavePath, dataFileSaveName));
+end
 
 %Left over remnent from dead-reckoning attempts.
 %plot3(pointsFix(:,1),pointsFix(:,2),pointsFix(:,3))
